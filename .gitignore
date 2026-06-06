@@ -1,0 +1,17 @@
+data/raw/
+data/processed/
+models/*.pkl
+models/*.joblib
+*.egg-info/
+__pycache__/
+.env
+mlruns/
+mlflow.db
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+*.log
+.DS_Store
+*.ipynb_checkpoints/

@@ -110,14 +110,27 @@ make ci-local
 
 ## Model Results
 
-| Model | F2 (test) | Avg Precision | Notes |
-|---|---|---|---|
-| Logistic Regression | — | — | Baseline |
-| XGBoost | — | — | Primary model |
-| LightGBM | — | — | Challenger |
-| XGBoost + SMOTE | — | — | Comparison only |
+All models trained on PaySim (6,362,620 rows, 0.129% fraud rate), 80/20 stratified split,
+threshold chosen to maximise F2 on the validation fold.
 
-*Results populated after running `make train-xgb`*
+| Model | F2 | Recall | Precision | Avg Precision | Threshold |
+|---|---|---|---|---|---|
+| Logistic Regression (baseline) | 0.42 | 0.64 | 0.18 | 0.54 | 0.99 |
+| XGBoost | 0.87 | 0.92 | 0.72 | 0.94 | 0.98 |
+| **LightGBM (champion ✓)** | **0.90** | **0.96** | **0.73** | **0.96** | **0.75** |
+
+**Fairness slice (FPR by transaction type):**
+
+| Type | N | FPR | Recall |
+|---|---|---|---|
+| CASH_IN | 280,258 | 0.000 | 0.000 (no fraud in this type) |
+| CASH_OUT | 447,193 | 0.001 | 0.930 |
+| DEBIT | 8,285 | 0.000 | 0.000 (no fraud in this type) |
+| PAYMENT | 430,261 | 0.000 | 0.000 (no fraud in this type) |
+| TRANSFER | 106,527 | 0.000 | 0.995 |
+
+Fraud is structurally limited to TRANSFER and CASH_OUT in PaySim — zero false positives
+on CASH_IN, DEBIT, and PAYMENT. See `Responsible AI` section for limitations of this analysis.
 
 ## Drift Monitoring
 

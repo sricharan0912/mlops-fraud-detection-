@@ -16,7 +16,7 @@ download-data:
 	bash scripts/download_data.sh
 
 eda:
-	jupyter nbconvert --to notebook --execute notebooks/00_eda.ipynb --output notebooks/00_eda_executed.ipynb
+	jupyter nbconvert --to notebook --execute notebooks/00_eda.ipynb --output 00_eda_executed.ipynb
 
 train-baseline:
 	python training/train.py --model baseline --data "$(BASE_DATA)"

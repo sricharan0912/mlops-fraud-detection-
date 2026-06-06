@@ -24,7 +24,9 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Install dependencies
-        run: pip install fastapi httpx pydantic pydantic-settings pytest pytest-asyncio anyio scikit-learn xgboost lightgbm imbalanced-learn pandas numpy mlflow
+        run: |
+          pip install fastapi httpx pydantic pydantic-settings pytest pytest-asyncio anyio scikit-learn xgboost lightgbm imbalanced-learn pandas numpy mlflow
+          pip install -e .
       - name: Train baseline on sample data
         run: python training/train.py --model baseline --data data/sample/paysim_sample_1k.csv --output models/ci_model.pkl
       - name: Assert F2 floor on sample
@@ -41,6 +43,7 @@ jobs:
       - name: Install dependencies and train CI model
         run: |
           pip install fastapi httpx pydantic pydantic-settings scikit-learn xgboost lightgbm imbalanced-learn pandas numpy mlflow uvicorn
+          pip install -e .
           python training/train.py --model baseline --data data/sample/paysim_sample_1k.csv --output models/ci_model.pkl
       - name: Build image
         run: docker build -t fraud-api:ci -f api/Dockerfile .

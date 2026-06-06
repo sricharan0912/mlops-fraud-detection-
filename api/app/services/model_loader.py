@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 
 import mlflow
-import mlflow.sklearn
+import mlflow.sklearn  # noqa: F401
 
 
 def load_champion_model(tracking_uri: str, model_name: str = "fraud-detector", alias: str = "champion"):

@@ -23,24 +23,11 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Install dependencies
-        run: pip install fastapi httpx pydantic pydantic-settings pytest pytest-asyncio anyio scikit-learn xgboost lightgbm imbalanced-learn pandas numpy
-      - name: Train on sample data
-        run: |
-          pip install mlflow
-          MODEL_PATH=models/ci_model.pkl python training/train.py \
-            --model baseline \
-            --data data/sample/paysim_sample_1k.csv \
-            --output models/ci_model.pkl
+        run: pip install fastapi httpx pydantic pydantic-settings pytest pytest-asyncio anyio scikit-learn xgboost lightgbm imbalanced-learn pandas numpy mlflow
+      - name: Train baseline on sample data
+        run: python training/train.py --model baseline --data data/sample/paysim_sample_1k.csv --output models/ci_model.pkl
       - name: Assert F2 floor on sample
-        run: |
-          python - << 'PYEOF'
-          import pickle
-          with open("models/ci_model.pkl", "rb") as f:
-              art = pickle.load(f)
-          f2 = art.get("f2") or art.get("f2_test", 0)
-          assert f2 >= 0.40, f"F2 too low on sample: {f2:.4f}"
-          print(f"Contract passed: F2={f2:.4f}")
-          PYEOF
+        run: python scripts/check_model_contract.py models/ci_model.pkl
       - name: Run API contract tests
         env:
           MODEL_PATH: models/ci_model.pkl
@@ -50,14 +37,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install dependencies and train CI model
+        run: |
+          pip install fastapi httpx pydantic pydantic-settings scikit-learn xgboost lightgbm imbalanced-learn pandas numpy mlflow uvicorn
+          python training/train.py --model baseline --data data/sample/paysim_sample_1k.csv --output models/ci_model.pkl
       - name: Build image
         run: docker build -t fraud-api:ci -f api/Dockerfile .
       - name: Smoke test container
         run: |
           docker run -d -p 8000:8000 \
-            -e MODEL_PATH=models/lgbm.pkl \
+            -e MODEL_PATH=models/ci_model.pkl \
             --name fraud-api-ci fraud-api:ci
-          sleep 8
+          sleep 10
           curl -f http://localhost:8000/health
           docker logs fraud-api-ci
           docker stop fraud-api-ci

@@ -15,3 +15,9 @@ dist/
 *.log
 .DS_Store
 *.ipynb_checkpoints/
+
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/terraform.tfstate
+infra/terraform/terraform.tfstate.backup
+infra/terraform/.terraform.lock.hcl
